@@ -1,26 +1,28 @@
 package main
 
 import (
-	"fmt"
-    "context"
-    "log"
-    "net/http"
-    "os"
-    "os/signal"
-    "syscall"
-    "time"
+	"context"
+	"log"
+	"net/http"
+	"order-management/internal/db"
 	"order-management/internal/handler"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
-	fmt.Println("Start")
+	dbConn := db.Init()
+	db.Migrate(dbConn)
+	defer dbConn.Close()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/orders", handler.OrdersHandler)
 	mux.HandleFunc("/orders/", handler.OrderByIDHandler)
 
 	srv := &http.Server{
-		Addr: ":8080",
+		Addr:    ":8080",
 		Handler: mux,
 	}
 
